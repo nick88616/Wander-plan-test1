@@ -3,8 +3,26 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { PackingCategory, PackingItem } from "../types";
 
 // Initialize the client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+let ai: GoogleGenAI | null = null;
+const apiKey = process.env.API_KEY;
 
+// 1. 先檢查有沒有 Key
+if (apiKey) {
+  ai = new GoogleGenAI({ apiKey });
+} else {
+  // 2. 如果沒有 Key (在 GitHub Pages 上)，就只印警告，不崩潰
+  console.warn("GitHub Pages 模式：API Key 未設定，AI 功能已停用。");
+}
+
+// 3. 之後要使用 AI 功能時，都要先檢查 ai 是否存在
+export const callMyAiFunction = async () => {
+  if (!ai) {
+    console.log("AI 沒空，回傳假資料");
+    return "這是假資料，因為沒有 API Key";
+  }
+  // 只有 ai 存在時才真的呼叫
+  // return await ai.models.generateContent(...);
+}
 const MODEL_NAME = "gemini-2.5-flash";
 
 export const estimateTravelTime = async (
